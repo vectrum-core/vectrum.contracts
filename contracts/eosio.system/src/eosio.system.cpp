@@ -397,4 +397,4 @@ namespace eosiosystem {
       open_act.send( rex_account, core, get_self() );
    }
 
-} /// eosio.system
+}

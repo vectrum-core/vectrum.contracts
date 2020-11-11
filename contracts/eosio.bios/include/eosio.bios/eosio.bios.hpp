@@ -8,15 +8,15 @@
 #include <eosio/producer_schedule.hpp>
 
 /**
- * EOSIO Contracts
+ * VECTRUM CONTRACTS
  *
- * The design of the EOSIO blockchain calls for a number of smart contracts that are run at a
+ * The design of the VECTRUM blockchain calls for a number of smart contracts that are run at a
  * privileged permission level in order to support functions such as block producer registration and
  * voting, token staking for CPU and network bandwidth, RAM purchasing, multi-sig, etc. These smart
  * contracts are referred to as the system, token, msig and wrap (formerly known as sudo) contracts.
  *
  * This repository contains examples of these privileged contracts that are useful when deploying,
- * managing, and/or using an EOSIO blockchain. They are provided for reference purposes:
+ * managing, and/or using an VECTRUM blockchain. They are provided for reference purposes:
  * - eosio.bios
  * - eosio.system
  * - eosio.msig
@@ -132,7 +132,7 @@ namespace eosiobios {
          /**
           * Link authorization action assigns a specific action from a contract to a permission you have created. Five system
           * actions can not be linked `updateauth`, `deleteauth`, `linkauth`, `unlinkauth`, and `canceldelay`.
-          * This is useful because when doing authorization checks, the EOSIO based blockchain starts with the
+          * This is useful because when doing authorization checks, the VECTRUM blockchain starts with the
           * action needed to be authorized (and the contract belonging to), and looks up which permission
           * is needed to pass authorization validation. If a link is set, that permission is used for authoraization
           * validation otherwise then active is the default, with the exception of `eosio.any`.

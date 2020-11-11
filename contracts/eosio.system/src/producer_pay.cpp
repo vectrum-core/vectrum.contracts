@@ -188,4 +188,4 @@ namespace eosiosystem {
       }
    }
 
-} //namespace eosiosystem
+}

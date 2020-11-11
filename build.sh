@@ -3,8 +3,8 @@ set -eo pipefail
 
 function usage() {
    printf "Usage: $0 OPTION...
-  -e DIR      Directory where EOSIO is installed. (Default: $HOME/eosio/X.Y)
-  -c DIR      Directory where EOSIO.CDT is installed. (Default: /usr/local/eosio.cdt)
+  -e DIR      Directory where VECTRUM is installed. (Default: $HOME/vectrum/X.Y)
+  -c DIR      Directory where VECTRUM.CDT is installed. (Default: /usr/local/vectrum.cdt)
   -t          Build unit tests.
   -y          Noninteractive mode (Uses defaults for each prompt.)
   -h          Print this help menu.
@@ -18,7 +18,7 @@ if [ $# -ne 0 ]; then
   while getopts "e:c:tyh" opt; do
     case "${opt}" in
       e )
-        EOSIO_DIR_PROMPT=$OPTARG
+        VECTRUM_DIR_PROMPT=$OPTARG
       ;;
       c )
         CDT_DIR_PROMPT=$OPTARG
@@ -53,27 +53,27 @@ fi
 . ./scripts/helper.sh
 
 if [[ ${BUILD_TESTS} == true ]]; then
-   # Prompt user for location of eosio.
-   eosio-directory-prompt
+   # Prompt user for location of VECTRUM.
+   vectrum-directory-prompt
 fi
 
-# Prompt user for location of eosio.cdt.
+# Prompt user for location of VECTRUM.CDT.
 cdt-directory-prompt
 
 # Include CDT_INSTALL_DIR in CMAKE_FRAMEWORK_PATH
-echo "Using EOSIO.CDT installation at: $CDT_INSTALL_DIR"
+echo "Using VECTRUM.CDT installation at: $CDT_INSTALL_DIR"
 export CMAKE_FRAMEWORK_PATH="${CDT_INSTALL_DIR}:${CMAKE_FRAMEWORK_PATH}"
 
 if [[ ${BUILD_TESTS} == true ]]; then
-   # Ensure eosio version is appropriate.
-   nodeos-version-check
+   # Ensure VECTRUM version is appropriate.
+   node-version-check
 
-   # Include EOSIO_INSTALL_DIR in CMAKE_FRAMEWORK_PATH
-   echo "Using EOSIO installation at: $EOSIO_INSTALL_DIR"
-   export CMAKE_FRAMEWORK_PATH="${EOSIO_INSTALL_DIR}:${CMAKE_FRAMEWORK_PATH}"
+   # Include VECTRUM_INSTALL_DIR in CMAKE_FRAMEWORK_PATH
+   echo "Using VECTRUM installation at: $VECTRUM_INSTALL_DIR"
+   export CMAKE_FRAMEWORK_PATH="${VECTRUM_INSTALL_DIR}:${CMAKE_FRAMEWORK_PATH}"
 fi
 
-printf "\t=========== Building eosio.contracts ===========\n\n"
+printf "\n========================== Building VECTRUM.CONTRACTS ==========================\n\n"
 RED='\033[0;31m'
 NC='\033[0m'
 CPU_CORES=$(getconf _NPROCESSORS_ONLN)

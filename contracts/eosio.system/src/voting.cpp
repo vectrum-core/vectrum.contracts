@@ -412,4 +412,4 @@ namespace eosiosystem {
       );
    }
 
-} /// namespace eosiosystem
+}

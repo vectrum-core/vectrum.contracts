@@ -67,7 +67,7 @@ namespace eosiosystem {
    static constexpr int64_t  useconds_per_hour     = int64_t(seconds_per_hour) * 1000'000ll;
    static constexpr uint32_t blocks_per_day        = 2 * seconds_per_day; // half seconds per day
 
-   static constexpr int64_t  min_activated_stake   = 150'000'000'0000;
+   static constexpr int64_t  min_activated_stake   = 75'000'000'0000;
    static constexpr int64_t  ram_gift_bytes        = 1400;
    static constexpr int64_t  min_pervote_daily_pay = 100'0000;
    static constexpr uint32_t refund_delay_sec      = 3 * seconds_per_day;
@@ -207,7 +207,7 @@ namespace eosiosystem {
             bool zero_threshold = std::visit( [](auto&& auth ) -> bool {
                return (auth.threshold == 0);
             }, *producer_authority );
-            // zero_threshold could be true despite the validation done in regproducer2 because the v1.9.0 eosio.system
+            // zero_threshold could be true despite the validation done in regproducer2
             // contract has a bug which may have modified the producer table such that the producer_authority field
             // contains a default constructed eosio::block_signing_authority (which has a 0 threshold and so is invalid).
             if( !zero_threshold ) return *producer_authority;
@@ -468,8 +468,8 @@ namespace eosiosystem {
    // - `version` defaulted to zero,
    // - `from` account creating and paying for loan,
    // - `receiver` account receiving rented resources,
-   // - `payment` SYS tokens paid for the loan,
-   // - `balance` is the amount of SYS tokens available to be used for loan auto-renewal,
+   // - `payment` VTM tokens paid for the loan,
+   // - `balance` is the amount of VTM tokens available to be used for loan auto-renewal,
    // - `total_staked` total amount staked,
    // - `loan_num` loan number/id,
    // - `expiration` the expiration time when loan will be either closed or renewed
@@ -523,7 +523,7 @@ namespace eosiosystem {
    };
 
    /**
-    * The EOSIO system contract. The EOSIO system contract governs ram market, voters, producers, global state.
+    * The VECTRUM system contract. The VECTRUM system contract governs ram market, voters, producers, global state.
     */
    class [[eosio::contract("eosio.system")]] system_contract : public native {
 
@@ -651,7 +651,7 @@ namespace eosiosystem {
          // functions defined in delegate_bandwidth.cpp
 
          /**
-          * Delegate bandwidth and/or cpu action. Stakes SYS from the balance of `from` for the benefit of `receiver`.
+          * Delegate bandwidth and/or cpu action. Stakes VTM from the balance of `from` for the benefit of `receiver`.
           *
           * @param from - the account to delegate bandwidth from, that is, the account holding
           *    tokens to be staked,
@@ -760,7 +760,7 @@ namespace eosiosystem {
          void cnclrexorder( const name& owner );
 
          /**
-          * Rentcpu action, uses payment to rent as many SYS tokens as possible as determined by market price and
+          * Rentcpu action, uses payment to rent as many VTM tokens as possible as determined by market price and
           * stake them for CPU for the benefit of receiver, after 30 days the rented core delegation of CPU
           * will expire. At expiration, if balance is greater than or equal to `loan_payment`, `loan_payment`
           * is taken out of loan balance and used to renew the loan. Otherwise, the loan is closed and user
@@ -780,7 +780,7 @@ namespace eosiosystem {
          void rentcpu( const name& from, const name& receiver, const asset& loan_payment, const asset& loan_fund );
 
          /**
-          * Rentnet action, uses payment to rent as many SYS tokens as possible as determined by market price and
+          * Rentnet action, uses payment to rent as many VTM tokens as possible as determined by market price and
           * stake them for NET for the benefit of receiver, after 30 days the rented core delegation of NET
           * will expire. At expiration, if balance is greater than or equal to `loan_payment`, `loan_payment`
           * is taken out of loan balance and used to renew the loan. Otherwise, the loan is closed and user
@@ -1052,7 +1052,7 @@ namespace eosiosystem {
           * @pre If proxy is set then proxy account must exist and be registered as a proxy
           * @pre Every listed producer or proxy must have been previously registered
           * @pre Voter must authorize this action
-          * @pre Voter must have previously staked some EOS for voting
+          * @pre Voter must have previously staked some VTM for voting
           * @pre Voter->staked must be up to date
           *
           * @post Every producer previously voted for will have vote reduced by previous vote weight

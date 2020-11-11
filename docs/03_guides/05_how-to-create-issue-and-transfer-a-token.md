@@ -10,11 +10,11 @@ cd CONTRACTS_DIR
 
 Pull the source
 ```text
-git clone https://github.com/EOSIO/eosio.contracts --branch master --single-branch
+git clone https://github.com/vectrum-core/vectrum.contracts --branch master --single-branch
 ```
 
 ```text
-cd eosio.contracts/contracts/eosio.token
+cd vectrum.contracts/contracts/eosio.token
 ```
 
 ## Step 2: Create Account for Contract
@@ -22,19 +22,19 @@ cd eosio.contracts/contracts/eosio.token
 | You may have to unlock your wallet first!
 
 ```shell
-cleos create account eosio eosio.token EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV
+vectrum-cli create account eosio eosio.token EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV
 ```
 
 ## Step 3: Compile the Contract
 
 ```shell
-eosio-cpp -I include -o eosio.token.wasm src/eosio.token.cpp --abigen
+vectrum-cpp -I include -o eosio.token.wasm src/eosio.token.cpp --abigen
 ```
 
 ## Step 4: Deploy the Token Contract
 
 ```shell
-cleos set contract eosio.token CONTRACTS_DIR/eosio.contracts/contracts/eosio.token --abi eosio.token.abi -p eosio.token@active
+vectrum-cli set contract eosio.token CONTRACTS_DIR/vectrum.contracts/contracts/eosio.token --abi eosio.token.abi -p eosio.token@active
 ```
 
 Result should look similar to the one below:
@@ -50,40 +50,40 @@ warning: transaction executed locally, but may not be confirmed by the network y
 ## Step 5: Create the Token
 
 ```shell
-cleos push action eosio.token create '[ "eosio", "1000000000.0000 SYS"]' -p eosio.token@active
+vectrum-cli push action eosio.token create '[ "eosio", "1000000000.0000 VTM"]' -p eosio.token@active
 ```
 
 Result should look similar to the one below:
 ```shell
 executed transaction: 0e49a421f6e75f4c5e09dd738a02d3f51bd18a0cf31894f68d335cd70d9c0e12  120 bytes  1000 cycles
-#   eosio.token <= eosio.token::create          {"issuer":"eosio","maximum_supply":"1000000000.0000 SYS"}
+#   eosio.token <= eosio.token::create          {"issuer":"eosio","maximum_supply":"1000000000.0000 VTM"}
 ```
 
 An alternate approach uses named arguments:
 
 ```shell
-cleos push action eosio.token create '{"issuer":"eosio", "maximum_supply":"1000000000.0000 SYS"}' -p eosio.token@active
+vectrum-cli push action eosio.token create '{"issuer":"eosio", "maximum_supply":"1000000000.0000 VTM"}' -p eosio.token@active
 ```
 
 Result should look similar to the one below:
 ```shell
 executed transaction: 0e49a421f6e75f4c5e09dd738a02d3f51bd18a0cf31894f68d335cd70d9c0e12  120 bytes  1000 cycles
-#   eosio.token <= eosio.token::create          {"issuer":"eosio","maximum_supply":"1000000000.0000 SYS"}
+#   eosio.token <= eosio.token::create          {"issuer":"eosio","maximum_supply":"1000000000.0000 VTM"}
 ```
-This command created a new token `SYS` with a precision of 4 decimals and a maximum supply of 1000000000.0000 SYS.  To create this token requires the permission of the `eosio.token` contract. For this reason, `-p eosio.token@active` was passed to authorize the request.
+This command created a new token `VTM` with a precision of 4 decimals and a maximum supply of 1000000000.0000 VTM.  To create this token requires the permission of the `eosio.token` contract. For this reason, `-p eosio.token@active` was passed to authorize the request.
 
 ## Step 6: Issue Tokens
 
 The issuer can issue new tokens to the issuer account in our case `eosio`. 
 
 ```text
-cleos push action eosio.token issue '[ "eosio", "100.0000 SYS", "memo" ]' -p eosio@active
+vectrum-cli push action eosio.token issue '[ "eosio", "100.0000 VTM", "memo" ]' -p eosio@active
 ```
 
 Result should look similar to the one below:
 ```shell
 executed transaction: a26b29d66044ad95edf0fc04bad3073e99718bc26d27f3c006589adedb717936  128 bytes  337 us
-#   eosio.token <= eosio.token::issue           {"to":"eosio","quantity":"100.0000 SYS","memo":"memo"}
+#   eosio.token <= eosio.token::issue           {"to":"eosio","quantity":"100.0000 VTM","memo":"memo"}
 warning: transaction executed locally, but may not be confirmed by the network yet         ]
 ```
 
@@ -92,35 +92,35 @@ warning: transaction executed locally, but may not be confirmed by the network y
 Now that account `eosio` has been issued tokens, transfer some of them to account `bob`.
 
 ```shell
-cleos push action eosio.token transfer '[ "eosio", "bob", "25.0000 SYS", "m" ]' -p eosio@active
+vectrum-cli push action eosio.token transfer '[ "eosio", "bob", "25.0000 VTM", "m" ]' -p eosio@active
 ```
 
 Result should look similar to the one below:
 ```text
 executed transaction: 60d334850151cb95c35fe31ce2e8b536b51441c5fd4c3f2fea98edcc6d69f39d  128 bytes  497 us
-#   eosio.token <= eosio.token::transfer        {"from":"eosio","to":"bob","quantity":"25.0000 SYS","memo":"m"}
-#         eosio <= eosio.token::transfer        {"from":"eosio","to":"bob","quantity":"25.0000 SYS","memo":"m"}
-#           bob <= eosio.token::transfer        {"from":"eosio","to":"bob","quantity":"25.0000 SYS","memo":"m"}
+#   eosio.token <= eosio.token::transfer        {"from":"eosio","to":"bob","quantity":"25.0000 VTM","memo":"m"}
+#         eosio <= eosio.token::transfer        {"from":"eosio","to":"bob","quantity":"25.0000 VTM","memo":"m"}
+#           bob <= eosio.token::transfer        {"from":"eosio","to":"bob","quantity":"25.0000 VTM","memo":"m"}
 warning: transaction executed locally, but may not be confirmed by the network yet         ]
 ```
-Now check if "bob" got the tokens using [cleos get currency balance](https://developers.eos.io/eosio-cleos/reference#currency-balance)
+Now check if "bob" got the tokens using `vectrum-cli get currency balance`
 
 ```shell
-cleos get currency balance eosio.token bob SYS
+vectrum-cli get currency balance eosio.token bob VTM
 ```
 
 Result:
 ```text
-25.00 SYS
+25.00 VTM
 ```
 
 Check "eosio's" balance, notice that tokens were deducted from the account 
 
 ```shell
-cleos get currency balance eosio.token eosio SYS
+vectrum-cli get currency balance eosio.token eosio VTM
 ```
 
 Result:
 ```text
-75.00 SYS
+75.00 VTM
 ```

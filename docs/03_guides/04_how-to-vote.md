@@ -4,9 +4,9 @@ Vote for a block producer
 
 ## Before you begin
 
-* Install the current supported version of cleos
+* Install the current supported version of vectrum-cli
 
-* Ensure the reference system contracts from `eosio.contracts` repository is deployed and used to manage system resources
+* Ensure the reference system contracts from `vectrum.contracts` repository is deployed and used to manage system resources
 
 * Understand the following:
   * What is a block producer
@@ -19,7 +19,7 @@ Vote for a block producer
 Assume you are going to vote for blockproducer1 and blockproducer2 from an account called `eosiotestts2`, execute the following:
 
 ```bash
-cleos system voteproducer prods eosiotestts2 blockproducer1 blockproducer2
+vectrum-cli system voteproducer prods eosiotestts2 blockproducer1 blockproducer2
 ```
 
 You should see something like below:

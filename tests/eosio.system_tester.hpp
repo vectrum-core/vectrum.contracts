@@ -978,7 +978,7 @@ public:
    }
 
    vector<name> active_and_vote_producers() {
-      //stake more than 15% of total EOS supply to activate chain
+      //stake more than 15% of total VTM supply to activate chain
       transfer( N(eosio), N(alice1111111), core_sym::from_string("650000000.0000"), config::system_account_name );
       BOOST_REQUIRE_EQUAL( success(), stake( N(alice1111111), N(alice1111111), core_sym::from_string("300000000.0000"), core_sym::from_string("300000000.0000") ) );
 

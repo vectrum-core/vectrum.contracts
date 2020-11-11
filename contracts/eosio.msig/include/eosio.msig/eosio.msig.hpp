@@ -156,5 +156,4 @@ namespace eosio {
 
          typedef eosio::multi_index< "invals"_n, invalidation > invalidations;
    };
-   /** @}*/ // end of @defgroup eosiomsig eosio.msig
-} /// namespace eosio
+}

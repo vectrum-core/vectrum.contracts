@@ -4,9 +4,9 @@ Stake resource for your account
 
 ## Before you begin
 
-* Install the currently supported version of cleos
+* Install the currently supported version of vectrum-cli
 
-* Ensure the reference system contracts from `eosio.contracts` repository is deployed and used to manage system resources
+* Ensure the reference system contracts from `vectrum.contracts` repository is deployed and used to manage system resources
 
 * Understand the following:
   * What is an account
@@ -15,14 +15,14 @@ Stake resource for your account
 
 ## Steps
 
-Stake 0.01 SYS network bandwidth for `alice`
+Stake 0.01 VTM network bandwidth for `alice`
 
 ```shell
-cleos system delegatebw alice alice "0 SYS" "0.01 SYS"
+vectrum-cli system delegatebw alice alice "0 VTM" "0.01 VTM"
 ```
 
-Stake 0.01 SYS CPU bandwidth for `alice`:
+Stake 0.01 VTM CPU bandwidth for `alice`:
 
 ```shell
-cleos system delegatebw alice alice "0.01 SYS" "0 SYS"
+vectrum-cli system delegatebw alice alice "0.01 VTM" "0 VTM"
 ```

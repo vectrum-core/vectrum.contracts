@@ -38,5 +38,4 @@ namespace eosio {
 
          using exec_action = eosio::action_wrapper<"exec"_n, &wrap::exec>;
    };
-   /** @}*/ // end of @defgroup eosiowrap eosio.wrap
-} /// namespace eosio
+}

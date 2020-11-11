@@ -413,4 +413,4 @@ namespace eosiosystem {
    }
 
 
-} //namespace eosiosystem
+}

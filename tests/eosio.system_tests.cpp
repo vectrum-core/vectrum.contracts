@@ -964,7 +964,7 @@ BOOST_FIXTURE_TEST_CASE( producer_wtmsig_transition, eosio_system_tester ) try {
 
    // The bug in v1.9.0 would cause alice to have an invalid producer authority (the default block_signing_authority).
    // The v1.9.0 system contract would have attempted to set a proposed producer schedule including this invalid
-   // authority which would be rejected by the EOSIO native system and cause the onblock transaction to continue to fail.
+   // authority which would be rejected by the VECTRUM native system and cause the onblock transaction to continue to fail.
    // This could be observed by noticing that last_producer_schedule_update was not being updated even though it should.
    // However, starting in v1.9.1, update_elected_producers is smarter about the producer schedule it constructs to
    // propose to the system. It will recognize the default constructed authority (which shouldn't be created by the
@@ -1050,7 +1050,7 @@ BOOST_FIXTURE_TEST_CASE( vote_for_producer, eosio_system_tester, * boost::unit_t
    BOOST_TEST_REQUIRE( stake2votes(core_sym::from_string("88.8888")) == prod["total_votes"].as_double() );
 
    //carol1111111 unstakes part of the stake
-   BOOST_REQUIRE_EQUAL( success(), unstake( "carol1111111", core_sym::from_string("2.0000"), core_sym::from_string("0.0002")/*"2.0000 EOS", "0.0002 EOS"*/ ) );
+   BOOST_REQUIRE_EQUAL( success(), unstake( "carol1111111", core_sym::from_string("2.0000"), core_sym::from_string("0.0002")/*"2.0000 VTM", "0.0002 VTM"*/ ) );
 
    //should decrease alice1111111's total_votes
    prod = get_producer_info( "alice1111111" );
@@ -1063,10 +1063,10 @@ BOOST_FIXTURE_TEST_CASE( vote_for_producer, eosio_system_tester, * boost::unit_t
    //should decrease alice1111111's total_votes
    prod = get_producer_info( "alice1111111" );
    BOOST_TEST_REQUIRE( stake2votes(core_sym::from_string("20.2220")) == prod["total_votes"].as_double() );
-   //but eos should still be at stake
+   //but VTM should still be at stake
    BOOST_REQUIRE_EQUAL( core_sym::from_string("1955.5556"), get_balance( "bob111111111" ) );
 
-   //carol1111111 unstakes rest of eos
+   //carol1111111 unstakes rest of VTM
    BOOST_REQUIRE_EQUAL( success(), unstake( "carol1111111", core_sym::from_string("20.0000"), core_sym::from_string("0.2220") ) );
    //should decrease alice1111111's total_votes to zero
    prod = get_producer_info( "alice1111111" );
@@ -2644,7 +2644,7 @@ BOOST_FIXTURE_TEST_CASE(votepay_transition, eosio_system_tester, * boost::unit_t
 BOOST_AUTO_TEST_CASE(votepay_transition2, * boost::unit_test::tolerance(1e-10)) try {
    eosio_system_tester t(eosio_system_tester::setup_level::minimal);
 
-   std::string old_contract_core_symbol_name = "SYS"; // Set to core symbol used in contracts::util::system_wasm_old()
+   std::string old_contract_core_symbol_name = "VTM"; // Set to core symbol used in contracts::util::system_wasm_old()
    symbol old_contract_core_symbol{::eosio::chain::string_to_symbol_c( 4, old_contract_core_symbol_name.c_str() )};
 
    auto old_core_from_string = [&]( const std::string& s ) {
@@ -3157,7 +3157,7 @@ BOOST_FIXTURE_TEST_CASE( elect_producers /*_and_parameters*/, eosio_system_teste
    BOOST_REQUIRE_EQUAL( success(), regproducer( N(defproducer2), 2) );
    BOOST_REQUIRE_EQUAL( success(), regproducer( N(defproducer3), 3) );
 
-   //stake more than 15% of total EOS supply to activate chain
+   //stake more than 15% of total VTM supply to activate chain
    transfer( "eosio", "alice1111111", core_sym::from_string("600000000.0000"), "eosio" );
    BOOST_REQUIRE_EQUAL( success(), stake( "alice1111111", "alice1111111", core_sym::from_string("300000000.0000"), core_sym::from_string("300000000.0000") ) );
    //vote for producers

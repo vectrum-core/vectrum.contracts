@@ -26,4 +26,4 @@ struct contracts {
       static std::vector<char>    msig_abi_old() { return read_abi("${CMAKE_SOURCE_DIR}/test_contracts/old_versions/v1.2.1/eosio.msig/eosio.msig.abi"); }
    };
 };
-}} //ns eosio::testing
+}}
