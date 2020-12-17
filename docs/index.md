@@ -26,7 +26,6 @@ As you just learned the relation between an account and a contract, we are addin
 |eosio.saving|No|No|The account which holds the 4% of network inflation.|
 |eosio.stake|No|No|The account that keeps track of all VTM tokens which have been staked for NET or CPU bandwidth.|
 |eosio.vpay|No|No|The account that pays the block producers accordingly with the votes won. It assigns 0.75% of inflation based on the amount of votes a block producer won in the last 24 hours.|
-|eosio.rex|No|No|The account that keeps track of fees and balances resulted from REX related actions execution.|
 
 ### RAM
 
@@ -97,7 +96,6 @@ The `eosio.system` contract is another smart contract that Block.one provides an
 - Producers can register in order to be voted for, and can claim per-block and per-vote rewards.
 - Users can buy and sell RAM at a market-determined price.
 - Users can bid on premium names.
-- A resource exchange system, named REX, allows token holders to lend their tokens, and users to rent CPU and NET resources in return for a market-determined fee.
 
 The actions implemented and publicly exposed by the `eosio.system` system contract are presented in the table below. Just like the `eosio.bios` sample contract there are a few actions which are not implemented at the contract level (`newaccount`, `updateauth`, `deleteauth`, `linkauth`, `unlinkauth`, `canceldelay`, `onerror`, `setabi`, `setcode`), they are just declared in the contract so they will show in the contract's ABI and users will be able to push those actions to the chain via the account holding the 'eosio.system' contract, but the implementation is at the VECTRUM core level. They are referred to as VECTRUM native actions.
 
@@ -125,24 +123,6 @@ The actions implemented and publicly exposed by the `eosio.system` system contra
 |updtrevision|Updates the current revision.|
 |bidname|Allows an account to place a bid for a name.|
 |bidrefund|Allows an account to get back the amount it bid so far on a name.|
-|deposit|Deposits core tokens to user REX fund.|
-|withdraw|Withdraws core tokens from user REX fund.|
-|buyrex|Buys REX in exchange for tokens taken out of user's REX fund by transferring core tokens from user REX fund and converting them to REX stake.|
-|unstaketorex|Use staked core tokens to buy REX.|
-|sellrex|Sells REX in exchange for core tokens by converting REX stake back into core tokens at current exchange rate.|
-|cnclrexorder|Cancels unfilled REX sell order by owner if one exists.|
-|rentcpu|Use payment to rent as many VTM tokens as possible as determined by market price and stake them for CPU for the benefit of receiver, after 30 days the rented core delegation of CPU will expire.|
-|rentnet|Use payment to rent as many VTM tokens as possible as determined by market price and stake them for NET for the benefit of receiver, after 30 days the rented core delegation of NET will expire.|
-|fundcpuloan|Transfers tokens from REX fund to the fund of a specific CPU loan in order to be used for loan renewal at expiry.|
-|fundnetloan|Transfers tokens from REX fund to the fund of a specific NET loan in order to be used for loan renewal at expiry.|
-|defcpuloan|Withdraws tokens from the fund of a specific CPU loan and adds them to the REX fund.|
-|defnetloan|Withdraws tokens from the fund of a specific NET loan and adds them to the REX fund.|
-|updaterex|Updates REX owner vote weight to current value of held REX tokens.|
-|consolidate|Consolidates REX maturity buckets into one bucket that cannot be sold before 4 days.|
-|mvtosavings|Moves a specified amount of REX to savings bucket.|
-|mvfrsavings|Moves a specified amount of REX from savings bucket.|
-|rexexec|Processes max CPU loans, max NET loans, and max queued sellrex orders. Action does not execute anything related to a specific user.|
-|closerex|Deletes owner records from REX tables and frees used RAM. Owner must not have an outstanding REX balance.|
 |buyrambytes|Increases receiver's ram in quantity of bytes provided.|
 |buyram|Increases receiver's ram quota based upon current price and quantity of tokens provided.|
 |sellram|Reduces quota my bytes and then performs an inline transfer of tokens to receiver based upon the average purchase price of the original quota.|
