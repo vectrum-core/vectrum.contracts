@@ -86,12 +86,6 @@ function vectrum-directory-prompt() {
 
 # Prompts or default behavior for choosing VECTRUM.CDT directory.
 function cdt-directory-prompt() {
-  ARCH=$( uname )
-  CDT_INSTALL_DIR_DEFAULT="/usr/local/vectrum.cdt"
-  if [ "$ARCH" == "Darwin" ]; then
-    CDT_INSTALL_DIR_DEFAULT="/usr/local/Cellar/vectrum.cdt"
-  fi
-
   if [[ -z $CDT_DIR_PROMPT ]]; then
     echo 'No VECTRUM.CDT location was specified.'
     while true; do

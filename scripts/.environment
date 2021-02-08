@@ -10,3 +10,9 @@ export VECTRUM_MAX_VERSION=$(cat $TEST_DIR/CMakeLists.txt | grep -E "^[[:blank:]
 export VECTRUM_MAX_VERSION="${VECTRUM_MAX_VERSION:-$(echo $VECTRUM_SOFT_MAX_MAJOR.999)}"
 export VECTRUM_MAX_VERSION_MAJOR=$(echo $VECTRUM_MAX_VERSION | cut -f1 -d '.')
 export VECTRUM_MAX_VERSION_MINOR=$(echo $VECTRUM_MAX_VERSION | cut -f2 -d '.')
+
+ARCH=$( uname )
+CDT_INSTALL_DIR_DEFAULT="/usr/local/vectrum.cdt"
+if [ "$ARCH" == "Darwin" ]; then
+  CDT_INSTALL_DIR_DEFAULT="/usr/local/Cellar/vectrum.cdt"
+fi

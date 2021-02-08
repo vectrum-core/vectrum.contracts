@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
+# Source helper functions and variables.
+. ./scripts/.environment
+. ./scripts/helper.sh
+
 function usage() {
    printf "Usage: $0 OPTION...
   -e DIR      Directory where VECTRUM is installed. (Default: $HOME/vectrum/X.Y)
-  -c DIR      Directory where VECTRUM.CDT is installed. (Default: /usr/local/vectrum.cdt)
+  -c DIR      Directory where VECTRUM.CDT is installed. (Default: $CDT_INSTALL_DIR_DEFAULT)
   -t          Build unit tests.
   -y          Noninteractive mode (Uses defaults for each prompt.)
   -h          Print this help menu.
@@ -47,10 +51,6 @@ if [ $# -ne 0 ]; then
     esac
   done
 fi
-
-# Source helper functions and variables.
-. ./scripts/.environment
-. ./scripts/helper.sh
 
 if [[ ${BUILD_TESTS} == true ]]; then
    # Prompt user for location of VECTRUM.
