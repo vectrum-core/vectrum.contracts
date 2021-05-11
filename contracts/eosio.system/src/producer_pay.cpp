@@ -137,58 +137,19 @@ namespace eosiosystem {
       if ( pro != _producers.end()) { // запись есть
          const auto& prod = _producers.get( owner.value );
          if (prod.active() && ct - prod.last_claim_time > microseconds(useconds_per_hour)) {
-            auto prod2 = _producers2.find( owner.value );
-
-            /// New metric to be used in pervote pay calculation. Instead of vote weight ratio, we combine vote weight and
-            /// time duration the vote weight has been held into one metric.
-            const auto last_claim_plus_3days = prod.last_claim_time + microseconds(3 * useconds_per_day);
-
-            bool crossed_threshold       = (last_claim_plus_3days <= ct);
-            bool updated_after_threshold = true;
-            if ( prod2 != _producers2.end() ) {
-               updated_after_threshold = (last_claim_plus_3days <= prod2->last_votepay_share_update);
-            } else {
-               prod2 = _producers2.emplace( owner, [&]( producer_info2& info  ) {
-                  info.owner                     = owner;
-                  info.last_votepay_share_update = ct;
-               });
-            }
-
-            // Note: updated_after_threshold implies cross_threshold (except if claiming rewards when the producers2 table row did not exist).
-            // The exception leads to updated_after_threshold to be treated as true regardless of whether the threshold was crossed.
-            // This is okay because in this case the producer will not get paid anything either way.
-            // In fact it is desired behavior because the producers votes need to be counted in the global total_producer_votepay_share for the first time.
-
             int64_t producer_per_block_pay = 0;
             if( _gstate.total_unpaid_blocks > 0 ) {
                producer_per_block_pay = (_gstate.bpay_bucket * prod.unpaid_blocks) / _gstate.total_unpaid_blocks;
             }
 
-            double new_votepay_share = update_producer_votepay_share( prod2,
-                                          ct,
-                                          updated_after_threshold ? 0.0 : prod.total_votes,
-                                          true // reset votepay_share to zero after updating
-                                       );
-
             int64_t producer_per_vote_pay = 0;
-            if( _gstate2.revision > 0 ) {
-               double total_votepay_share = update_total_producer_votepay_share( ct );
-               if( total_votepay_share > 0 && !crossed_threshold ) {
-                  producer_per_vote_pay = int64_t((new_votepay_share * _gstate.vpay_bucket) / total_votepay_share);
-                  if( producer_per_vote_pay > _gstate.vpay_bucket )
-                     producer_per_vote_pay = _gstate.vpay_bucket;
-               }
-            } else {
-               if( _gstate.total_producer_vote_weight > 0 ) {
-                  producer_per_vote_pay = int64_t((_gstate.vpay_bucket * prod.total_votes) / _gstate.total_producer_vote_weight);
-               }
+            if( _gstate.total_producer_vote_weight > 0 ) {
+               producer_per_vote_pay = int64_t((_gstate.vpay_bucket * prod.total_votes) / _gstate.total_producer_vote_weight);
             }
 
             _gstate.bpay_bucket         -= producer_per_block_pay;
             _gstate.vpay_bucket         -= producer_per_vote_pay;
             _gstate.total_unpaid_blocks -= prod.unpaid_blocks;
-
-            update_total_producer_votepay_share( ct, -new_votepay_share, (updated_after_threshold ? prod.total_votes : 0.0) );
 
             _producers.modify( prod, same_payer, [&](auto& p) {
                p.last_claim_time = ct;
@@ -209,47 +170,13 @@ namespace eosiosystem {
       auto vot = _voters.find( owner.value );
       if ( vot != _voters.end()) { // запись есть
          const auto& voter = _voters.get( owner.value );
-         if (voter.last_personal_weight > 0 && ct - voter.last_claim_time > microseconds(useconds_per_hour)) {
-            auto voter2 = _voters2.find( owner.value );
-
-            /// New metric to be used in pervote pay calculation. Instead of vote weight ratio, we combine vote weight and
-            /// time duration the vote weight has been held into one metric.
-            const auto last_claim_plus_3days = voter.last_claim_time + microseconds(3 * useconds_per_day);
-
-            bool crossed_threshold       = (last_claim_plus_3days <= ct);
-            bool updated_after_threshold = true;
-            if ( voter2 != _voters2.end() ) {
-               updated_after_threshold = (last_claim_plus_3days <= voter2->last_votepay_share_update);
-            } else {
-               voter2 = _voters2.emplace( owner, [&]( voter_info2& info  ) {
-                  info.owner                     = owner;
-                  info.last_votepay_share_update = ct;
-               });
-            }
-
-            double new_votepay_share = update_user_votepay_share( voter2,
-                                          ct,
-                                          updated_after_threshold ? 0.0 : voter.last_personal_weight,
-                                          true // reset votepay_share to zero after updating
-                                       );
-
+         if (voter.last_personal_vote_weight > 0 && ct - voter.last_claim_time > microseconds(useconds_per_hour)) {
             int64_t user_per_vote_pay = 0;
-            if( _gstate2.revision > 0 ) {
-               double total_votepay_share = update_total_user_votepay_share( ct );
-               if( total_votepay_share > 0 && !crossed_threshold ) {
-                  user_per_vote_pay = int64_t((new_votepay_share * _gstate.upay_bucket) / total_votepay_share);
-                  if( user_per_vote_pay > _gstate.upay_bucket )
-                     user_per_vote_pay = _gstate.upay_bucket;
-               }
-            } else {
-               if( _gstate.total_user_vote_weight > 0 ) {
-                  user_per_vote_pay = int64_t((_gstate.upay_bucket * voter.last_personal_weight) / _gstate.total_user_vote_weight);
-               }
+            if( _gstate.total_user_vote_weight > 0 ) {
+               user_per_vote_pay = int64_t((_gstate.upay_bucket * voter.last_personal_vote_weight) / _gstate.total_user_vote_weight);
             }
 
             _gstate.upay_bucket         -= user_per_vote_pay;
-
-            update_total_user_votepay_share( ct, -new_votepay_share, (updated_after_threshold ? voter.last_personal_weight : 0.0) );
 
             _voters.modify( voter, same_payer, [&](auto& v) {
                v.last_claim_time = ct;

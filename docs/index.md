@@ -120,7 +120,6 @@ The actions implemented and publicly exposed by the `eosio.system` system contra
 |setacctnet|Set the NET limits of an account.|
 |setacctcpu|Set the CPU limits of an account.|
 |rmvproducer|Deactivates a producer by name, if not found asserts.|
-|updtrevision|Updates the current revision.|
 |bidname|Allows an account to place a bid for a name.|
 |bidrefund|Allows an account to get back the amount it bid so far on a name.|
 |buyrambytes|Increases receiver's ram in quantity of bytes provided.|

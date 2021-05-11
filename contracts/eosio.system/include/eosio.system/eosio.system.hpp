@@ -152,31 +152,14 @@ namespace eosiosystem {
       uint16_t          new_ram_per_block = 0;
       block_timestamp   last_ram_increase;
       block_timestamp   last_block_num; /* deprecated */
-      double            total_producer_votepay_share = 0;
-      double            total_user_votepay_share = 0;
       uint8_t           revision = 0; ///< used to track version updates in the future.
 
       EOSLIB_SERIALIZE( eosio_global_state2,
         (new_ram_per_block)(last_ram_increase)(last_block_num)
-         (total_producer_votepay_share)
-         (total_user_votepay_share)
          (revision)
       )
    };
 
-   // Defines new global state parameters added after version 1.3.0
-   struct [[eosio::table("global3"), eosio::contract("eosio.system")]] eosio_global_state3 {
-      eosio_global_state3() { }
-      time_point        last_producer_vpay_state_update;
-      double            total_producer_vpay_share_change_rate = 0;
-      time_point        last_user_vpay_state_update;
-      double            total_user_vpay_share_change_rate = 0;
-
-      EOSLIB_SERIALIZE( eosio_global_state3,
-         (last_producer_vpay_state_update)(total_producer_vpay_share_change_rate)
-         (last_user_vpay_state_update)(total_user_vpay_share_change_rate)
-      )
-   };
 
    // Defines new global state parameters to store inflation rate and distribution
    struct [[eosio::table("global4"), eosio::contract("eosio.system")]] eosio_global_state4 {
@@ -262,18 +245,6 @@ namespace eosiosystem {
       }
    };
 
-   // Defines new producer info structure to be stored in new producer info table, added after version 1.3.0
-   struct [[eosio::table, eosio::contract("eosio.system")]] producer_info2 {
-      name            owner;
-      double          votepay_share = 0;
-      time_point      last_votepay_share_update;
-
-      uint64_t primary_key()const { return owner.value; }
-
-      // explicit serialization macro is not necessary, used here only to improve compilation time
-      EOSLIB_SERIALIZE( producer_info2, (owner)(votepay_share)(last_votepay_share_update) )
-   };
-
    // Voter info. Voter info stores information about the voter:
    // - `owner` the voter
    // - `proxy` the proxy set by the voter, if any
@@ -289,8 +260,8 @@ namespace eosiosystem {
       //  Every time a vote is cast we must first "undo" the last vote weight, before casting the
       //  new vote weight.  Vote weight is calculated as:
       //  stated.amount * 2 ^ ( weeks_since_launch/weeks_per_year)
-      double              last_vote_weight = 0; /// the vote weight cast the last time the vote was updated
-      double              last_personal_weight = 0; /// the vote weight cast the last time the vote was updated
+      double              last_vote_weight = 0; /// for proxy =last_personal_vote_weight+proxied_vote_weight
+      double              last_personal_vote_weight = 0; /// for personal
 
       // Total vote weight delegated to this voter.
       double              proxied_vote_weight= 0; /// the total vote weight delegated to this voter as a proxy
@@ -311,40 +282,22 @@ namespace eosiosystem {
 
       // explicit serialization macro is not necessary, used here only to improve compilation time
       EOSLIB_SERIALIZE( voter_info,
-         (owner)(proxy)(producers)(last_claim_time)(staked)(last_vote_weight)(last_personal_weight)
+         (owner)(proxy)(producers)(last_claim_time)(staked)(last_vote_weight)(last_personal_vote_weight)
          (proxied_vote_weight)(is_proxy)(flags1)(reserved2)(reserved3)
       )
    };
 
-   // Defines new producer info structure to be stored in new producer info table, added after version 1.3.0
-   struct [[eosio::table, eosio::contract("eosio.system")]] voter_info2 {
-      name            owner;
-      double          votepay_share = 0;
-      time_point      last_votepay_share_update;
-
-      uint64_t primary_key()const { return owner.value; }
-
-      // explicit serialization macro is not necessary, used here only to improve compilation time
-      EOSLIB_SERIALIZE( voter_info2, (owner)(votepay_share)(last_votepay_share_update) )
-   };
-
 
    typedef eosio::multi_index< "voters"_n, voter_info >  voters_table;
-   typedef eosio::multi_index< "voters2"_n, voter_info2 >  voters_table2;
-
 
    typedef eosio::multi_index< "producers"_n, producer_info,
                                indexed_by<"prototalvote"_n, const_mem_fun<producer_info, double, &producer_info::by_votes>  >
                              > producers_table;
 
-   typedef eosio::multi_index< "producers2"_n, producer_info2 > producers_table2;
-
 
    typedef eosio::singleton< "global"_n, eosio_global_state >   global_state_singleton;
 
    typedef eosio::singleton< "global2"_n, eosio_global_state2 > global_state2_singleton;
-
-   typedef eosio::singleton< "global3"_n, eosio_global_state3 > global_state3_singleton;
 
    typedef eosio::singleton< "global4"_n, eosio_global_state4 > global_state4_singleton;
 
@@ -401,16 +354,12 @@ namespace eosiosystem {
 
       private:
          voters_table             _voters;
-         voters_table2            _voters2;
          producers_table          _producers;
-         producers_table2         _producers2;
          global_state_singleton   _global;
          global_state2_singleton  _global2;
-         global_state3_singleton  _global3;
          global_state4_singleton  _global4;
          eosio_global_state       _gstate;
          eosio_global_state2      _gstate2;
-         eosio_global_state3      _gstate3;
          eosio_global_state4      _gstate4;
          rammarket                _rammarket;
 
@@ -649,6 +598,7 @@ namespace eosiosystem {
          [[eosio::action]]
          void unregprod( const name& producer );
 
+         // vectrum only
          [[eosio::action]]
          void activprod( const name& producer );
 
@@ -745,16 +695,6 @@ namespace eosiosystem {
          void rmvproducer( const name& producer );
 
          /**
-          * Update revision action, updates the current revision.
-          * @param revision - it has to be incremented by 1 compared with current revision.
-          *
-          * @pre Current revision can not be higher than 254, and has to be smaller
-          * than or equal 1 (“set upper bound to greatest revision supported in the code”).
-          */
-         [[eosio::action]]
-         void updtrevision( uint8_t revision );
-
-         /**
           * Bid name action, allows an account `bidder` to place a bid for a name `newname`.
           * @param bidder - the account placing the bid,
           * @param newname - the name the bid is placed for,
@@ -804,7 +744,6 @@ namespace eosiosystem {
          using regproxy_action = eosio::action_wrapper<"regproxy"_n, &system_contract::regproxy>;
          using claimrewards_action = eosio::action_wrapper<"claimrewards"_n, &system_contract::claimrewards>;
          using rmvproducer_action = eosio::action_wrapper<"rmvproducer"_n, &system_contract::rmvproducer>;
-         using updtrevision_action = eosio::action_wrapper<"updtrevision"_n, &system_contract::updtrevision>;
          using bidname_action = eosio::action_wrapper<"bidname"_n, &system_contract::bidname>;
          using bidrefund_action = eosio::action_wrapper<"bidrefund"_n, &system_contract::bidrefund>;
          using setpriv_action = eosio::action_wrapper<"setpriv"_n, &system_contract::setpriv>;
@@ -837,16 +776,6 @@ namespace eosiosystem {
          void update_elected_producers( const block_timestamp& timestamp );
          void update_votes( const name& voter, const name& proxy, const std::vector<name>& producers, bool voting );
          void propagate_weight_change( const voter_info& voter );
-         double update_producer_votepay_share( const producers_table2::const_iterator& prod_itr,
-                                               const time_point& ct,
-                                               double shares_rate, bool reset_to_zero = false );
-         double update_total_producer_votepay_share( const time_point& ct,
-                                            double additional_shares_delta = 0.0, double shares_rate_delta = 0.0 );
-         double update_user_votepay_share( const voters_table2::const_iterator& prod_itr,
-                                               const time_point& ct,
-                                               double shares_rate, bool reset_to_zero = false );
-         double update_total_user_votepay_share( const time_point& ct,
-                                            double additional_shares_delta = 0.0, double shares_rate_delta = 0.0 );
    };
 
 }
