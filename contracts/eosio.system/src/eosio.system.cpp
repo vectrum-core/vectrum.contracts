@@ -11,13 +11,40 @@ namespace eosiosystem {
    using eosio::current_time_point;
    using eosio::token;
 
-   double get_continuous_rate(int64_t annual_rate) {
-      return std::log1p(double(annual_rate)/double(100*inflation_precision));
+   double system_contract::get_continuous_rate(int64_t timePassedAfterActivation) {
+      double rate = 0; // 0%
+
+      if (timePassedAfterActivation <= 3 * useconds_per_month) {
+         const int64_t startRate = 3000; // 30%
+         const int64_t endRate = 1000;   // 10%
+         const int64_t timeInterval = timePassedAfterActivation;
+         const double delta = double(startRate - endRate) * double(timeInterval) / double(3 * useconds_per_month);
+         rate = double(startRate) - delta;
+
+      } else if (timePassedAfterActivation <= 15 * useconds_per_month) {
+         const int64_t startRate = 1000; // 10%
+         const int64_t endRate = 500;    // 5%
+         const int64_t timeInterval = timePassedAfterActivation - 3 * useconds_per_month;
+         const double delta = double(startRate - endRate) * double(timeInterval) / double(12 * useconds_per_month);
+         rate = double(startRate) - delta;
+
+      } else if (timePassedAfterActivation <= 27 * useconds_per_month) {
+         const int64_t startRate = 500; // 5%
+         const int64_t endRate = 100;   // 1%
+         const int64_t timeInterval = timePassedAfterActivation - 15 * useconds_per_month;
+         const double delta = double(startRate - endRate) * double(timeInterval) / double(12 * useconds_per_month);
+         rate = double(startRate) - delta;
+
+      } else {
+         rate = 100; // 1%
+      }
+      return std::log1p(rate/double(100 * inflation_precision));
    }
 
    system_contract::system_contract( name s, name code, datastream<const char*> ds )
    :native(s,code,ds),
     _voters(get_self(), get_self().value),
+    _voters2(get_self(), get_self().value),
     _producers(get_self(), get_self().value),
     _producers2(get_self(), get_self().value),
     _global(get_self(), get_self().value),
@@ -40,9 +67,10 @@ namespace eosiosystem {
 
    eosio_global_state4 system_contract::get_default_inflation_parameters() {
       eosio_global_state4 gs4;
-      gs4.continuous_rate      = get_continuous_rate(default_annual_rate);
-      gs4.inflation_pay_factor = default_inflation_pay_factor;
-      gs4.votepay_factor       = default_votepay_factor;
+      gs4.continuous_rate   = get_continuous_rate(0ll);
+      gs4.bpay_factor       = default_bpay_factor;
+      gs4.vpay_factor       = default_vpay_factor;
+      gs4.upay_factor       = default_upay_factor;
       return gs4;
    }
 
@@ -287,21 +315,6 @@ namespace eosiosystem {
       check( revision <= 1, // set upper bound to greatest revision supported in the code
              "specified revision is not yet supported by the code" );
       _gstate2.revision = revision;
-   }
-
-   void system_contract::setinflation( int64_t annual_rate, int64_t inflation_pay_factor, int64_t votepay_factor ) {
-      require_auth(get_self());
-      check(annual_rate >= 0, "annual_rate can't be negative");
-      if ( inflation_pay_factor < pay_factor_precision ) {
-         check( false, "inflation_pay_factor must not be less than " + std::to_string(pay_factor_precision) );
-      }
-      if ( votepay_factor < pay_factor_precision ) {
-         check( false, "votepay_factor must not be less than " + std::to_string(pay_factor_precision) );
-      }
-      _gstate4.continuous_rate      = get_continuous_rate(annual_rate);
-      _gstate4.inflation_pay_factor = inflation_pay_factor;
-      _gstate4.votepay_factor       = votepay_factor;
-      _global4.set( _gstate4, get_self() );
    }
 
    /**
