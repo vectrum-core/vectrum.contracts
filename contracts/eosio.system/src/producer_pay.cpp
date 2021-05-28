@@ -31,12 +31,12 @@ namespace eosiosystem {
       // эмиссия раз в минуту
       const auto ct = current_time_point();
       const auto usecs_since_last_fill = (ct - _gstate.last_buckets_fill).count();
-      if( usecs_since_last_fill > useconds_per_minute && _gstate.last_buckets_fill > time_point() ) {
+      if( usecs_since_last_fill >= useconds_per_minute ) {
          const auto timePassedAfterActivation = (ct - _gstate.thresh_activated_stake_time).count();
          const double rate = get_continuous_rate(timePassedAfterActivation);
          _gstate4.continuous_rate = rate;
+
          const asset token_supply = token::get_supply(token_account, core_symbol().code() );
-   
          double inflation = (rate * double(token_supply.amount) * double(usecs_since_last_fill)) / double(useconds_per_month);
          check( inflation <= double(std::numeric_limits<int64_t>::max() - ((1ll << 10) - 1)),
                 "overflow in calculating new tokens to be issued; inflation rate is too high" );

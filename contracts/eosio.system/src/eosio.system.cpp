@@ -38,7 +38,8 @@ namespace eosiosystem {
       } else {
          rate = 100; // 1%
       }
-      return std::log1p(rate/double(100 * inflation_precision));
+
+      return rate/double(100 * inflation_precision);
    }
 
    system_contract::system_contract( name s, name code, datastream<const char*> ds )
@@ -63,7 +64,7 @@ namespace eosiosystem {
 
    eosio_global_state4 system_contract::get_default_inflation_parameters() {
       eosio_global_state4 gs4;
-      gs4.continuous_rate   = get_continuous_rate(0ll);
+      gs4.continuous_rate   = get_continuous_rate(0);
       gs4.bpay_factor       = default_bpay_factor;
       gs4.vpay_factor       = default_vpay_factor;
       gs4.upay_factor       = default_upay_factor;
